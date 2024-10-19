@@ -1,7 +1,10 @@
 package com.xuecheng.content.model.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -14,6 +17,9 @@ import java.io.Serializable;
  */
 @Data
 @TableName("course_category")
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString(callSuper = true)
 public class CourseCategory implements Serializable {
 
     private static final long serialVersionUID = 1L;

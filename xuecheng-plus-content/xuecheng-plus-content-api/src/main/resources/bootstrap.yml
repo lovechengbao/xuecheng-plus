@@ -11,6 +11,8 @@ spring:
     url: jdbc:mysql://47.99.144.74:3306/xc_content?serverTimezone=UTC&userUnicode=true&useSSL=false&
     username: root
     password: 010812czw
+    hikari:
+      max-lifetime: 30000
 # 日志文件配置路径
 logging:
   config: classpath:log4j2-dev.xml
