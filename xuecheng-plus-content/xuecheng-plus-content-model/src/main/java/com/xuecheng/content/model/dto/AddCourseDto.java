@@ -1,12 +1,13 @@
 package com.xuecheng.content.model.dto;
 
+import com.xuecheng.base.Validation.Phone;
+import com.xuecheng.base.Validation.ValidationGroups;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 
 /**
  * @description 添加课程dto
@@ -18,7 +19,7 @@ import java.math.BigDecimal;
 @ApiModel(value="AddCourseDto", description="新增课程基本信息")
 public class AddCourseDto {
 
- @NotEmpty(message = "课程名称不能为空")
+ @NotEmpty(message = "课程名称不能为空",groups = {ValidationGroups.Insert.class,ValidationGroups.Update.class})
  @ApiModelProperty(value = "课程名称", required = true)
  private String name;
 
@@ -51,7 +52,7 @@ public class AddCourseDto {
  @ApiModelProperty(value = "课程图片", required = true)
  private String pic;
 
- @NotEmpty(message = "收费规则不能为空")
+ @NotEmpty(message = "收费规则不能为空" )
  @ApiModelProperty(value = "收费规则，对应数据字典", required = true)
  private String charge;
 
@@ -67,6 +68,7 @@ public class AddCourseDto {
  @ApiModelProperty(value = "微信")
  private String wechat;
  @ApiModelProperty(value = "电话")
+ @Phone
  private String phone;
 
  @ApiModelProperty(value = "有效期")

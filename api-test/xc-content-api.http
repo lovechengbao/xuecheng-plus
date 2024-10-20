@@ -7,3 +7,30 @@ Content-Type: application/json
   "courseName": "java",
   "publishStatus": ""
 }
+
+###新增课程接口
+POST {{content_host}}/content/course
+Content-Type: application/json
+
+{
+  "charge":"201001",
+  "price":"-1000",
+  "qq":"11",
+  "wechat":"22",
+  "phone":"13686869691",
+  "validDays":365,
+  "mt":"1-4",
+  "st":"1-4-2",
+  "pic":"",
+  "teachmode":"200003",
+  "tags":"111111",
+  "grade":"204001",
+  "objectives":"",
+  "uiCategoryTreeSelected":[
+    "1-4",
+    "1-4-2"
+  ],
+  "description":"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈",
+  "originalPrice":"1000"
+}
+
