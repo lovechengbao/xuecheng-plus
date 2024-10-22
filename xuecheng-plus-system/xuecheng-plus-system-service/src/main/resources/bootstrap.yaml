@@ -1,0 +1,23 @@
+#微服务配置
+spring:
+  application:
+    name: system-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config: #配置中心
+        namespace: dev
+        group: xuecheng-plus-project
+        file-extension: yaml
+        refresh-enabled: true
+        password: 010812czw
+        username: nacos
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://47.99.144.74:3306/xc_system?serverTimezone=UTC&userUnicode=true&useSSL=false&
+#    username: root
+#    password: 010812czw
+# 日志文件配置路径
+#logging:
+#  config: classpath:log4j2-dev.xml
