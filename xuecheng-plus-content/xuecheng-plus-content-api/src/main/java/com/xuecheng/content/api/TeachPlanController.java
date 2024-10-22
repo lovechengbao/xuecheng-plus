@@ -2,6 +2,7 @@ package com.xuecheng.content.api;
 
 import com.xuecheng.content.model.dto.SaveTeachPlanDto;
 import com.xuecheng.content.model.dto.TeachPlanDto;
+import com.xuecheng.content.model.dto.TeachPlanErrorDto;
 import com.xuecheng.content.service.TeachPlanService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,5 +27,15 @@ public class TeachPlanController {
     @ApiOperation("查询课程计划树形结构")
     public void saveTeachPlan(@RequestBody SaveTeachPlanDto teachPlan){
         teachPlanService.saveTeachPlan(teachPlan);
+    }
+
+    @DeleteMapping("/teachplan/{id}")
+    public TeachPlanErrorDto deleteTeachPlan(@PathVariable Long id){
+        return teachPlanService.deleteTeachPlanById(id);
+    }
+
+    @PostMapping("/teachplan/{moveType}/{id}")
+    public void moveTeachPlan(@PathVariable("moveType") String moveType,@PathVariable Long id){
+        teachPlanService.moveTeachPlan(moveType,id);
     }
 }
