@@ -18,6 +18,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.substring;
 
@@ -85,5 +89,38 @@ public class MinioTest {
             System.out.println("下载成功");
         }
 
+    }
+
+
+    @Test
+    void uploadChunk() throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        for (int i = 0; i < 7; i++) {
+            minioClient.uploadObject(
+                    UploadObjectArgs.builder()
+                            .bucket("mediafiles")
+                            .object("test/chunk/"+ i) // 上传到minio的文件路径和名称
+                            .filename("D:\\photos\\chunk\\" + i)
+                            .build());
+            System.out.println("上传第"+ i +"个分块成功");
+        }
+    }
+
+    @Test
+    void testMerge() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        // List<ComposeSource> sources = new ArrayList<>();
+        // for (int i = 0; i < 31; i++) {
+        //     ComposeSource composeSource = ComposeSource.builder().bucket("mediafiles").object("test/chunk/"+ i).build();
+        //     sources.add(composeSource);
+        // }
+        List<ComposeSource> sources = Stream.iterate(0, i -> ++i).limit(7).map(i -> ComposeSource.builder().bucket("mediafiles").object("test/chunk/" + i).build()).collect(Collectors.toList());
+        //指定合并后的objectname信息
+        ComposeObjectArgs composeObjectArgs = ComposeObjectArgs
+                .builder()
+                .bucket("mediafiles")
+                .object("test/merge.mp4")
+                .sources(sources)
+                .build();
+        //minio默认的分块大小5m，更改不了
+        minioClient.composeObject(composeObjectArgs);
     }
 }

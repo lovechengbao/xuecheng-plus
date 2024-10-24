@@ -30,4 +30,16 @@ spring:
             refresh: true
   profiles:
     active: dev
+  datasource:
+    hikari:
+      connection-test-query: SELECT 1
+      pool-name: DatebookHikariCP
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 30000
+      connection-timeout: 30000
+
+
+
 
