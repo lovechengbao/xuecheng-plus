@@ -9,10 +9,12 @@ import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.mapper.MediaFilesMapper;
+import com.xuecheng.media.mapper.MediaProcessMapper;
 import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import com.xuecheng.media.model.po.MediaProcess;
 import com.xuecheng.media.service.MediaFileService;
 import io.minio.*;
 import io.minio.errors.*;
@@ -20,20 +22,19 @@ import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilterInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -56,6 +57,8 @@ public class MediaFileServiceImpl implements MediaFileService {
     @Autowired
     private MediaFilesMapper mediaFilesMapper;
     @Autowired
+    private MediaProcessMapper mediaProcessMapper;
+    @Autowired
     private MinioClient minioClient;
     @Value("${spring.minio.bucket.files}")
     private String filesBucket;
@@ -68,7 +71,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         // 构建查询条件对象
         LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(MediaFiles::getFilename,queryMediaParamsDto.getFilename());
-        queryWrapper.like(MediaFiles::getFileType,queryMediaParamsDto.getFileType());
+        queryWrapper.like(MediaFiles::getFileType,queryMediaParamsDto.getType());
 
         // 分页对象
         Page<MediaFiles> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
@@ -295,8 +298,32 @@ public class MediaFileServiceImpl implements MediaFileService {
                 log.error("保存数据库失败,bucket:{},objectName:{}", bucket, filePath);
                 return null;
             }
+            //记录待处理任务
+            //向media_process表中添加待处理任务
+            this.addWaitingTask(mediaFiles);
         }
         return mediaFiles;
+    }
+
+
+    private void addWaitingTask(MediaFiles mediaFiles) {
+        //获取文件的mimetype
+        //文件名称
+        String filename = mediaFiles.getFilename();
+        //获取扩展名
+        String extension = filename.substring(filename.lastIndexOf("."));
+        String mimeType = getMimeType(extension);
+        if (mimeType.equals("video/x-msvideo")){
+            //向media_process表中添加待处理任务
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles, mediaProcess);
+            mediaProcess.setUrl(null);
+            mediaProcess.setFailCount(0);
+            mediaProcess.setStatus("1");
+
+            mediaProcessMapper.insert(mediaProcess);
+        }
+
     }
 
 
@@ -348,6 +375,24 @@ public class MediaFileServiceImpl implements MediaFileService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public File downloadFile(String bucket, String objectName) {
+        File tempFile = null;
+        FileOutputStream fos = null;
+        try {
+            FilterInputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(objectName)
+                    .build());
+            tempFile = File.createTempFile("minio", ".temp");
+            fos = new FileOutputStream(tempFile);
+            IOUtils.copy(stream, fos);
+            return tempFile;
+        }catch (Exception e) {
+            XueChengPlusException.cast("下载文件失败");
+        }
+        return tempFile;
     }
 
 }

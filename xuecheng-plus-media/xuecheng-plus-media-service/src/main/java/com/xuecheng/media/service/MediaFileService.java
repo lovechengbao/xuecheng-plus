@@ -7,8 +7,10 @@ import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import io.minio.ObjectWriteResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -49,4 +51,8 @@ public interface MediaFileService {
      * @date 2022/9/13 15:56
      */
     RestResponse mergechunks(Long companyId,String fileMd5,int chunkTotal,UploadFileParamsDto uploadFileParamsDto);
+
+    File downloadFile(String bucket, String objectName);
+
+    ObjectWriteResponse addMediaFilesToMinio(String bucket, String localFilePath, String mimeType, String objectName);
 }

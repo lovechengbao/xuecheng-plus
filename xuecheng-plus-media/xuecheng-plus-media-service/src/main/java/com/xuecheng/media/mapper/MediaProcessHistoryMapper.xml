@@ -19,4 +19,6 @@
         id, file_id, filename, bucket, status, create_date, finish_date, url
     </sql>
 
+<!--    select * from media_process m where m.id % 2 = 1 and (status = 1 or status = 3) and fail_count <3 limit 2;-->
+
 </mapper>

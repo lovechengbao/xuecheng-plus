@@ -4,6 +4,7 @@ package com.xuecheng.media;
 import com.alibaba.nacos.common.utils.MD5Utils;
 import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
+import com.xuecheng.base.exception.XueChengPlusException;
 import io.minio.*;
 import io.minio.errors.*;
 import okhttp3.Headers;
@@ -122,5 +123,23 @@ public class MinioTest {
                 .build();
         //minio默认的分块大小5m，更改不了
         minioClient.composeObject(composeObjectArgs);
+    }
+
+    @Test
+    void testDown(){
+        File tempFile = null;
+        FileOutputStream fos = null;
+        try {
+            FilterInputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket("video")
+                    .object("f/9/f984d035e1d0a7d6d4073341abf5d8ce/f984d035e1d0a7d6d4073341abf5d8ce.avi")
+                    .build());
+            tempFile = File.createTempFile("minio", ".temp");
+            fos = new FileOutputStream(tempFile);
+            IOUtils.copy(stream, fos);
+            System.out.println(tempFile.getAbsoluteFile());
+        }catch (Exception e) {
+            XueChengPlusException.cast("下载文件失败");
+        }
     }
 }
